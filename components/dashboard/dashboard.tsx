@@ -11,7 +11,7 @@ interface AudioFile {
   audioBase64?: string;
 }
 
-const DEFAULT_VOICE_ID = "UgBBYS2sOqTuMpoF3BR0";
+const DEFAULT_VOICE_ID = "uju3wxzG5OhpWcoi3SMy";
 
 export default function Dashboard() {
   const [text, setText] = useState("");

@@ -11,7 +11,7 @@ interface AudioFile {
   audioBase64?: string;
 }
 
-const DEFAULT_VOICE_ID = "uju3wxzG5OhpWcoi3SMy";
+const DEFAULT_VOICE_ID = "BtWabtumIemAotTjP5sk";
 
 export default function Dashboard() {
   const [text, setText] = useState("");
@@ -170,7 +170,9 @@ export default function Dashboard() {
 
       const link = document.createElement("a");
       link.href = url;
-      link.download = audioFile.fileName || "data.mpga";
+      // Convert .mpga extension to .mp3 for download
+      const fileName = audioFile.fileName || "data.mpga";
+      link.download = fileName.replace(/\.mpga$/i, ".mp3");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

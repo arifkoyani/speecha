@@ -11,6 +11,8 @@ interface AudioFile {
   audioBase64?: string;
 }
 
+const DEFAULT_VOICE_ID = "UgBBYS2sOqTuMpoF3BR0";
+
 export default function Dashboard() {
   const [text, setText] = useState("");
   const [voiceId, setVoiceId] = useState("");
@@ -36,10 +38,9 @@ export default function Dashboard() {
       showToast("Please enter text to generate voice", "error");
       return;
     }
-    if (!voiceId.trim()) {
-      showToast("Please enter a voice ID", "error");
-      return;
-    }
+
+    // Use default voice ID if not provided
+    const finalVoiceId = voiceId.trim() || DEFAULT_VOICE_ID;
 
     setIsGenerating(true);
     setError(null);
@@ -52,7 +53,7 @@ export default function Dashboard() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text, voiceId }),
+        body: JSON.stringify({ text, voiceId: finalVoiceId }),
       });
 
       if (!response.ok) {
@@ -197,11 +198,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-white text-black">
       {/* Toast Notifications */}
       {error && (
         <div
-          className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in"
+          className="fixed top-4 right-4 bg-black text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in"
           role="alert"
           aria-live="assertive"
         >
@@ -210,7 +211,8 @@ export default function Dashboard() {
       )}
       {success && (
         <div
-          className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in"
+          className="fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in"
+          style={{ backgroundColor: '#f16625' }}
           role="alert"
           aria-live="polite"
         >
@@ -220,17 +222,20 @@ export default function Dashboard() {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Page Title */}
-        <h1 className="text-4xl md:text-5xl font-bold text-center mb-12 text-gray-800 dark:text-gray-100">
-          Awazain - Single by moulana elevenlabs khan khatak
+        <h1 className="text-4xl md:text-5xl font-bold text-center text-black">
+          Awazain -
         </h1>
+        <p className="text-center text-black mb-8">
+        Single by moulana Elevenlabs khan Chaudhary
+        </p>
 
         {/* Main Content Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+        <div className="bg-black rounded-2xl shadow-xl border border-black p-6 md:p-8 space-y-6">
           {/* Textarea */}
           <div>
             <label
               htmlFor="text-input"
-              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+              className="block text-sm text-white font-medium mb-2 text-black"
             >
               Enter Text to Speech
             </label>
@@ -238,7 +243,7 @@ export default function Dashboard() {
               id="text-input"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="w-full min-h-[200px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all"
+              className="w-full min-h-[200px] p-4 border border-black rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-[#f16625] bg-white text-black transition-all"
               placeholder="Type your text here..."
               aria-label="Text to speech input"
             />
@@ -248,17 +253,17 @@ export default function Dashboard() {
           <div>
             <label
               htmlFor="voice-id"
-              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium mb-2 text-black"
             >
-              Voice ID
+              Voice ID <span className="text-black opacity-60 text-xs">(optional - default will be used if empty)</span>
             </label>
             <input
               id="voice-id"
               type="text"
               value={voiceId}
               onChange={(e) => setVoiceId(e.target.value)}
-              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all"
-              placeholder="Enter voice ID"
+              className="w-full p-3 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f16625] bg-white text-black transition-all"
+              placeholder="Enter voice ID (default: UgBBYS2sOqTuMpoF3BR0)"
               aria-label="Voice ID input"
             />
           </div>
@@ -268,7 +273,10 @@ export default function Dashboard() {
             <button
               onClick={handleGenerateVoice}
               disabled={isGenerating}
-              className="flex-1 min-w-[200px] bg-blue-600 hover:bg-blue-700 dark:bg-teal-600 dark:hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-teal-500"
+              className="w-full text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#f16625]"
+              style={{ backgroundColor: '#f16625' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d85a1f'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f16625'}
               aria-label="Generate voice from text"
             >
               {isGenerating ? (
@@ -299,54 +307,11 @@ export default function Dashboard() {
                 "Generate Voice"
               )}
             </button>
-
-            <button
-              onClick={handleSendText}
-              disabled={isSending}
-              className="flex-1 min-w-[200px] bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-500"
-              aria-label="Send text to API"
-            >
-              {isSending ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg
-                    className="animate-spin h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Sending...
-                </span>
-              ) : (
-                "Send Text"
-              )}
-            </button>
-
-            <button
-              onClick={handleClear}
-              className="flex-1 min-w-[200px] bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              aria-label="Clear all inputs and audio"
-            >
-              Clear
-            </button>
           </div>
 
           {/* Audio Player Section */}
           {audioFile && audioUrl && (
-            <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-4 animate-fade-in">
+            <div className="mt-8 p-6 bg-white border border-black rounded-lg space-y-4 animate-fade-in">
             
               <div className="flex flex-col sm:flex-row gap-4 items-center">
                 <audio
@@ -360,7 +325,10 @@ export default function Dashboard() {
 
                 <button
                   onClick={handleDownload}
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 whitespace-nowrap"
+                  className="text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#f16625] whitespace-nowrap"
+                  style={{ backgroundColor: '#f16625' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d85a1f'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f16625'}
                   aria-label="Download audio file"
                 >
                   Download Voice

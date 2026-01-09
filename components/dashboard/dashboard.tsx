@@ -228,7 +228,7 @@ export default function Dashboard() {
           Awazain -
         </h1>
         <p className="text-center text-black mb-8">
-        Single by moulana Elevenlabs khan Chaudhary
+        Single By Moulana Elevenlabs Khan Chaudhary
         </p>
 
         {/* Main Content Card */}

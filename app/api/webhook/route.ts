@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward request to the actual webhook
-    const webhookUrl = 'https://curriculumvitai.app.n8n.cloud/webhook/dd2a06d7-396b-465e-98f8-c1fad30162eb';
+    const webhookUrl = 'https://automation.uconnect.work/webhook/dd2a06d7-396b-465e-98f8-c1fad30162eb';
     
     const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
@@ -80,30 +80,42 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Response is JSON
-      const data = await webhookResponse.json();
+      let data;
+      try {
+        data = await webhookResponse.json();
+      } catch (parseError) {
+        console.error('Failed to parse webhook response as JSON:', parseError);
+        return NextResponse.json(
+          { error: 'Invalid JSON response from webhook' },
+          { status: 500 }
+        );
+      }
       
-      // Handle array response format: [{ "data": "base64string..." }]
-      if (Array.isArray(data) && data.length > 0 && data[0].data) {
-        const base64Audio = data[0].data;
+      // Handle array response format: [{ "audio": "base64string..." }] or [{ "data": "base64string..." }]
+      if (Array.isArray(data) && data.length > 0) {
+        // Check for "audio" property first (new format), then fallback to "data" (old format)
+        const base64Audio = data[0].audio || data[0].data;
         
-        // Calculate file size from base64 string
-        // Base64 encoding increases size by ~33%, so we decode to get actual size
-        const base64Length = base64Audio.length;
-        const padding = (base64Audio.match(/=/g) || []).length;
-        const fileSize = Math.floor((base64Length * 3) / 4) - padding;
-        
-        return NextResponse.json({
-          success: true,
-          file: {
-            fileName: 'data.mpga',
-            fileExtension: 'mpga',
-            mimeType: 'audio/mpeg',
-            fileSize: fileSize,
-            audioBase64: base64Audio,
-          },
-          text,
-          voiceId,
-        });
+        if (base64Audio && typeof base64Audio === 'string') {
+          // Calculate file size from base64 string
+          // Base64 encoding increases size by ~33%, so we decode to get actual size
+          const base64Length = base64Audio.length;
+          const padding = (base64Audio.match(/=/g) || []).length;
+          const fileSize = Math.floor((base64Length * 3) / 4) - padding;
+          
+          return NextResponse.json({
+            success: true,
+            file: {
+              fileName: 'data.mpga',
+              fileExtension: 'mpga',
+              mimeType: 'audio/mpeg',
+              fileSize: fileSize,
+              audioBase64: base64Audio,
+            },
+            text,
+            voiceId,
+          });
+        }
       }
       
       // If the webhook returns the audio data in JSON format (object)
@@ -144,13 +156,38 @@ export async function POST(request: NextRequest) {
         });
       }
       
-      // Return the webhook response as-is
-      return NextResponse.json({
-        success: true,
-        ...data,
-        text,
-        voiceId,
-      });
+      // If data object has an "audio" property directly (not in array)
+      if (data.audio && typeof data.audio === 'string') {
+        const base64Audio = data.audio;
+        const base64Length = base64Audio.length;
+        const padding = (base64Audio.match(/=/g) || []).length;
+        const fileSize = Math.floor((base64Length * 3) / 4) - padding;
+        
+        return NextResponse.json({
+          success: true,
+          file: {
+            fileName: 'data.mpga',
+            fileExtension: 'mpga',
+            mimeType: 'audio/mpeg',
+            fileSize: fileSize,
+            audioBase64: base64Audio,
+          },
+          text,
+          voiceId,
+        });
+      }
+      
+      // Log unexpected response format for debugging
+      console.error('Unexpected webhook response format:', JSON.stringify(data).substring(0, 200));
+      
+      // Return error if we can't parse the response
+      return NextResponse.json(
+        { 
+          error: 'Unable to extract audio data from webhook response',
+          details: 'Response format not recognized'
+        },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error('Error processing webhook request:', error);

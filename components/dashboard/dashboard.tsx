@@ -53,7 +53,7 @@ export default function Dashboard() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text, voiceId: finalVoiceId }),
+        body: JSON.stringify({ text, voiceId: finalVoiceId,enhance_alpha: true }),
       });
 
       if (!response.ok) {

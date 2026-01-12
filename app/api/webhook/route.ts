@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ text,
-    voice: voiceId,
+  voiceId,
     model_id: "eleven_v3" }),
     });
 

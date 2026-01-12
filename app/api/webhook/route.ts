@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ text, voiceId }),
+      body: JSON.stringify({ text, voiceId,enhance_alpha: true  }),
     });
 
     if (!webhookResponse.ok) {
